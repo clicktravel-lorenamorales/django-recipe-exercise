@@ -38,7 +38,7 @@ class RecipeDetailSerializer(serializers.ModelSerializer):
             'description',
             instance.description
         )
-        instance.save()
+        super().update(validated_data=validated_data, instance=instance)
         for ingredient in new_ingredients:
             Ingredient.objects.create(name=ingredient['name'], recipe=instance)
         return instance

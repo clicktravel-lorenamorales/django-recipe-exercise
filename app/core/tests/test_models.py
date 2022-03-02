@@ -7,7 +7,7 @@ class ModelTests(TestCase):
 
     def test_recipe_str(self):
         """Test the recipe string representation"""
-        recipe = models.Recipe.objects.create(
+        recipe = models.Recipe(
             name='Pizza',
             description='Put in the oven'
         )
@@ -16,9 +16,9 @@ class ModelTests(TestCase):
 
     def test_ingredient_str(self):
         """Test the ingredient string representation"""
-        ingredient = models.Ingredient.objects.create(
+        ingredient = models.Ingredient(
             name='Mozzarela',
-            recipe=models.Recipe.objects.create(
+            recipe=models.Recipe(
                 name='Pizza',
                 description='Put in the oven'
             )

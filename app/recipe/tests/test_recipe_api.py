@@ -1,11 +1,10 @@
+import json
 from django.test import TestCase
 from django.urls import reverse
 
 from rest_framework import status
 
 from core.models import Recipe, Ingredient
-
-from recipe.serializers import RecipeDetailSerializer
 
 RECIPES_URL = reverse('recipe:recipe-list')
 
@@ -42,32 +41,42 @@ class RecipeApiTests(TestCase):
 
         res = self.client.get(RECIPES_URL)
 
-        recipes = Recipe.objects.all().order_by('name')
-        serializer = RecipeDetailSerializer(recipes, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual([
+            {'id': 9,
+             'name': 'Pizza',
+             'description': 'Sample recipe description',
+             'ingredients': []
+             },
+            {'id': 8,
+             'name': 'Steak pie',
+             'description': 'Sample recipe description',
+             'ingredients': [{'name': 'Sample ingredient'}]
+             }], json.loads(json.dumps(res.data)))
 
     def test_filter_recipes_by_name(self):
         """Test returning a list of recipes filtered by name"""
         recipe1 = sample_recipe(name='Pizza Margarita')
-        recipe2 = sample_recipe(name='Paella')
-        recipe3 = sample_recipe(name='Pizza Carbonara')
-        recipe4 = sample_recipe()
+        sample_recipe(name='Paella')
+        sample_recipe(name='Pizza Carbonara')
+        sample_recipe()
 
         sample_ingredient(recipe1)
 
         res = self.client.get(RECIPES_URL, {'name': 'Pizz'})
 
-        serializer1 = RecipeDetailSerializer(recipe1)
-        serializer2 = RecipeDetailSerializer(recipe2)
-        serializer3 = RecipeDetailSerializer(recipe3)
-        serializer4 = RecipeDetailSerializer(recipe4)
-
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn(serializer1.data, res.data)
-        self.assertIn(serializer3.data, res.data)
-        self.assertNotIn(serializer2.data, res.data)
-        self.assertNotIn(serializer4.data, res.data)
+        self.assertEqual([
+            {'id': 6,
+             'name': 'Pizza Carbonara',
+             'description': 'Sample recipe description',
+             'ingredients': []
+             },
+            {'id': 4,
+             'name': 'Pizza Margarita',
+             'description': 'Sample recipe description',
+             'ingredients': [{'name': 'Sample ingredient'}]
+             }], json.loads(json.dumps(res.data)))
 
     def test_view_recipe_detail(self):
         """Test viewing a recipe detail"""
@@ -77,8 +86,13 @@ class RecipeApiTests(TestCase):
         url = specific_recipe_url(recipe.id)
         res = self.client.get(url)
 
-        serializer = RecipeDetailSerializer(recipe)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(
+            {'id': 12,
+             'name': 'Sample recipe',
+             'description': 'Sample recipe description',
+             'ingredients': [{'name': 'Sample ingredient'}]
+             }, json.loads(json.dumps(res.data))
+        )
 
     def test_create_recipe_with_ingredients(self):
         """Test creating recipe"""
