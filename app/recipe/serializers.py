@@ -33,11 +33,6 @@ class RecipeDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.ingredients.all().delete()
         new_ingredients = validated_data.pop('ingredients')
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get(
-            'description',
-            instance.description
-        )
         super().update(validated_data=validated_data, instance=instance)
         for ingredient in new_ingredients:
             Ingredient.objects.create(name=ingredient['name'], recipe=instance)

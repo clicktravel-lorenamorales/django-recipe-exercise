@@ -1,9 +1,9 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 
 from core import models
 
 
-class ModelTests(TestCase):
+class ModelTests(SimpleTestCase):
 
     def test_recipe_str(self):
         """Test the recipe string representation"""
